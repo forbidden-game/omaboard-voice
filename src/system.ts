@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 
 export async function copyToClipboard(command: string, text: string): Promise<void> {
-  await runCommand(command, [], text);
+  await runCommand(command, [], text, { waitForExit: false });
 }
 
 export async function sendNotification(
@@ -16,7 +16,18 @@ export async function playSound(command: string, args: string[]): Promise<void> 
   await runCommand(command, args);
 }
 
-async function runCommand(command: string, args: string[], input?: string): Promise<void> {
+interface RunCommandOptions {
+  waitForExit?: boolean;
+}
+
+async function runCommand(
+  command: string,
+  args: string[],
+  input?: string,
+  options: RunCommandOptions = {}
+): Promise<void> {
+  const waitForExit = options.waitForExit ?? true;
+
   await new Promise<void>((resolve, reject) => {
     const child = spawn(command, args, {
       stdio: ["pipe", "ignore", "pipe"]
@@ -32,20 +43,38 @@ async function runCommand(command: string, args: string[], input?: string): Prom
       reject(new Error(`Failed to start ${command}: ${error.message}`));
     });
 
-    child.once("close", (code) => {
+    let settled = false;
+
+    const settle = (handler: () => void): void => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      handler();
+    };
+
+    const onClose = (code: number | null): void => {
       if (code === 0) {
-        resolve();
+        settle(resolve);
         return;
       }
 
       const extra = stderr.trim().length > 0 ? `: ${stderr.trim()}` : "";
-      reject(new Error(`${command} exited with code ${String(code)}${extra}`));
-    });
+      settle(() => reject(new Error(`${command} exited with code ${String(code)}${extra}`)));
+    };
+
+    child.once("close", onClose);
 
     if (input !== undefined) {
       child.stdin.write(input);
     }
 
     child.stdin.end();
+
+    if (!waitForExit) {
+      setTimeout(() => {
+        settle(resolve);
+      }, 200);
+    }
   });
 }

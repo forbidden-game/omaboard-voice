@@ -200,12 +200,15 @@ export class VoiceService {
       }
 
       let settled = false;
+      let stopSignalSent = false;
 
       const softTimeout = setTimeout(() => {
+        stopSignalSent = true;
         recorder.kill("SIGTERM");
       }, 1_000);
 
       const hardTimeout = setTimeout(() => {
+        stopSignalSent = true;
         recorder.kill("SIGKILL");
         settleError(
           new Error(
@@ -244,7 +247,12 @@ export class VoiceService {
       };
 
       const onExit = (code: number | null, signal: NodeJS.Signals | null): void => {
-        if (code === 0 || signal === "SIGINT" || signal === "SIGTERM") {
+        if (
+          code === 0 ||
+          signal === "SIGINT" ||
+          signal === "SIGTERM" ||
+          (stopSignalSent && code === 1 && signal === null)
+        ) {
           settleOk();
           return;
         }
@@ -263,6 +271,7 @@ export class VoiceService {
       recorder.once("exit", onExit);
       recorder.once("error", onError);
 
+      stopSignalSent = true;
       const killOk = recorder.kill("SIGINT");
       if (!killOk && (recorder.exitCode !== null || recorder.signalCode !== null)) {
         settleOk();
