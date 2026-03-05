@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for contributing to `omaboard-voice`.
+Thanks for contributing to `omarvoice`.
 
 ## Development Setup
 

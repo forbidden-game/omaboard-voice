@@ -61,7 +61,7 @@ export class VoiceService {
 
     await mkdir(this.config.tmpDir, { recursive: true });
 
-    const filename = `omaboard-voice-${Date.now()}.wav`;
+    const filename = `omarvoice-${Date.now()}.wav`;
     const filePath = join(this.config.tmpDir, filename);
     const recorder = spawn(this.config.recordCommand, [...this.config.recordArgs, filePath], {
       stdio: ["ignore", "ignore", "pipe"]

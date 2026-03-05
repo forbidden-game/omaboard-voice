@@ -28,7 +28,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   const runtimeDir = env.XDG_RUNTIME_DIR ?? "/tmp";
 
   return {
-    socketPath: env.VOICE_SOCKET_PATH ?? join(runtimeDir, "omaboard-voice.sock"),
+    socketPath: env.VOICE_SOCKET_PATH ?? join(runtimeDir, "omarvoice.sock"),
     endpoint: env.VOICE_ENDPOINT ?? "http://127.0.0.1:8000/v1/chat/completions",
     apiKey: normalizeOptional(env.VOICE_API_KEY),
     tmpDir: env.VOICE_TMP_DIR ?? "/tmp",

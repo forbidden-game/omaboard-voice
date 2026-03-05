@@ -1,4 +1,4 @@
-# omaboard-voice
+# omarvoice
 
 Push-to-talk voice input daemon for Omarchy/Hyprland.
 
@@ -102,11 +102,11 @@ Find your absolute project path:
 realpath .
 ```
 
-1. Create `~/.config/systemd/user/omaboard-voice-tunnel.service`:
+1. Create `~/.config/systemd/user/omarvoice-tunnel.service`:
 
 ```ini
 [Unit]
-Description=Omaboard voice SSH tunnel
+Description=Omarvoice SSH tunnel
 After=network-online.target
 Wants=network-online.target
 
@@ -120,7 +120,7 @@ RestartSec=3
 WantedBy=default.target
 ```
 
-2. Create `~/.config/systemd/user/omaboard-voice.service`:
+2. Create `~/.config/systemd/user/omarvoice.service`:
 
 Find absolute paths first (optional: list sources only if you want to pin a specific microphone):
 
@@ -132,19 +132,19 @@ pactl list short sources
 
 ```ini
 [Unit]
-Description=Omaboard voice daemon
-After=graphical-session.target network-online.target omaboard-voice-tunnel.service
-Wants=network-online.target omaboard-voice-tunnel.service
+Description=Omarvoice daemon
+After=graphical-session.target network-online.target omarvoice-tunnel.service
+Wants=network-online.target omarvoice-tunnel.service
 PartOf=graphical-session.target
 
 [Service]
 Type=simple
-WorkingDirectory=/absolute/path/to/omaboard
+WorkingDirectory=/absolute/path/to/omarvoice
 Environment=VOICE_ENDPOINT=http://127.0.0.1:18000/v1/chat/completions
 Environment=VOICE_MODEL=Qwen/Qwen3-ASR-1.7B
 Environment=VOICE_LANGUAGE=zh
 Environment="VOICE_RECORD_ARGS=--rate 16000 --channels 1"
-ExecStart=/absolute/path/to/node /absolute/path/to/omaboard/dist/daemon.js
+ExecStart=/absolute/path/to/node /absolute/path/to/omarvoice/dist/daemon.js
 Restart=always
 RestartSec=2
 
@@ -156,21 +156,21 @@ WantedBy=graphical-session.target
 
 ```bash
 systemctl --user daemon-reload
-systemctl --user enable --now omaboard-voice-tunnel.service
-systemctl --user enable --now omaboard-voice.service
+systemctl --user enable --now omarvoice-tunnel.service
+systemctl --user enable --now omarvoice.service
 ```
 
 4. Verify:
 
 ```bash
-systemctl --user status omaboard-voice.service omaboard-voice-tunnel.service
+systemctl --user status omarvoice.service omarvoice-tunnel.service
 voicectl status
 ```
 
 Notes:
 
 - `enabled` user services auto-start after you log in.
-- `omaboard-voice.service` requires an active graphical Wayland session (`graphical-session.target`).
+- `omarvoice.service` requires an active graphical Wayland session (`graphical-session.target`).
 - `sudo loginctl enable-linger $USER` is only suitable for non-graphical services such as the SSH tunnel.
 
 ## Troubleshooting
@@ -179,13 +179,13 @@ Notes:
   - Run `npm link`, then verify with `which voicectl`.
 - Daemon cannot connect to backend:
   - Check `VOICE_ENDPOINT` and test with `curl`.
-  - Check logs with `journalctl --user -u omaboard-voice.service -f`.
+  - Check logs with `journalctl --user -u omarvoice.service -f`.
 - SSH tunnel service restarts or hangs:
   - Ensure key-based SSH login is configured for `<your-ssh-host-alias>`.
   - Test non-interactive SSH first: `ssh -o BatchMode=yes <your-ssh-host-alias> true`.
 - No transcript copied to clipboard:
   - Confirm `wl-copy` exists: `which wl-copy`.
-  - If you see `Failed to connect to a Wayland server`, make sure `omaboard-voice.service` is started in `graphical-session.target` (not `default.target`) so `WAYLAND_DISPLAY` is available.
+  - If you see `Failed to connect to a Wayland server`, make sure `omarvoice.service` is started in `graphical-session.target` (not `default.target`) so `WAYLAND_DISPLAY` is available.
 - Microphone not recording:
   - Confirm PipeWire tools exist: `which pw-record`.
   - List valid sources with `pactl list short sources`; if needed, pin one source in `VOICE_RECORD_ARGS` by adding `--target <source-name>`.
@@ -194,7 +194,7 @@ Notes:
 
 - `VOICE_ENDPOINT`: OpenAI-compatible chat completions endpoint.
 - `VOICE_API_KEY`: optional bearer token.
-- `VOICE_SOCKET_PATH`: Unix socket path. Default: `$XDG_RUNTIME_DIR/omaboard-voice.sock`.
+- `VOICE_SOCKET_PATH`: Unix socket path. Default: `$XDG_RUNTIME_DIR/omarvoice.sock`.
 - `VOICE_TMP_DIR`: temp wav dir. Default: `/tmp`.
 - `VOICE_RECORD_COMMAND`: recorder command. Default: `pw-record`.
 - `VOICE_RECORD_ARGS`: recorder args. Default: `--rate 16000 --channels 1`.
