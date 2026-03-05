@@ -115,12 +115,12 @@ WantedBy=default.target
 
 2. Create `~/.config/systemd/user/omaboard-voice.service`:
 
-Find absolute paths and microphone source first:
+Find absolute paths first (optional: list sources only if you want to pin a specific microphone):
 
 ```bash
 realpath .
 command -v node
-pw-record --list-targets
+pactl list short sources
 ```
 
 ```ini
@@ -136,7 +136,7 @@ WorkingDirectory=/absolute/path/to/omaboard
 Environment=VOICE_ENDPOINT=http://127.0.0.1:18000/v1/chat/completions
 Environment=VOICE_MODEL=Qwen/Qwen3-ASR-1.7B
 Environment=VOICE_LANGUAGE=zh
-Environment="VOICE_RECORD_ARGS=--rate 16000 --channels 1 --target <your-mic-source-name>"
+Environment="VOICE_RECORD_ARGS=--rate 16000 --channels 1"
 ExecStart=/absolute/path/to/node /absolute/path/to/omaboard/dist/daemon.js
 Restart=always
 RestartSec=2
@@ -181,7 +181,7 @@ Notes:
   - If you see `Failed to connect to a Wayland server`, make sure `omaboard-voice.service` is started in `graphical-session.target` (not `default.target`) so `WAYLAND_DISPLAY` is available.
 - Microphone not recording:
   - Confirm PipeWire tools exist: `which pw-record`.
-  - List valid targets with `pw-record --list-targets`, then set `VOICE_RECORD_ARGS` with a real source name.
+  - List valid sources with `pactl list short sources`; if needed, pin one source in `VOICE_RECORD_ARGS` by adding `--target <source-name>`.
 
 ## Environment Variables
 
