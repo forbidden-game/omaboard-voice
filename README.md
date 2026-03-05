@@ -4,13 +4,9 @@ Push-to-talk voice input daemon for Omarchy/Hyprland.
 
 ## Demo
 
-[▶ Watch Demo With Sound (MP4)](./assets/demo.mp4)
+https://github.com/user-attachments/assets/80bbe068-f270-4904-91ab-25bc9aeefd01
 
-[![omaboard-voice demo](./assets/demo.gif)](./assets/demo.mp4)
-
-- GIF preview: `assets/demo.gif`
-- MP4 playback/download: [assets/demo.mp4](./assets/demo.mp4)
-- GitHub README pages do not reliably inline-play repository video files, so use the link above for video playback.
+- Fallback playback/download: [assets/demo.mp4](./assets/demo.mp4)
 
 ## Prerequisites
 
