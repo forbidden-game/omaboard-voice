@@ -2,6 +2,14 @@
 
 Push-to-talk voice input daemon for Omarchy/Hyprland.
 
+## Prerequisites
+
+- Node.js 20+
+- Wayland desktop session (Hyprland)
+- PipeWire tools: `pw-record`, `pw-play`
+- `wl-clipboard` (`wl-copy`)
+- `libnotify` (`notify-send`)
+
 ## Features
 
 - Press hotkey -> start recording (`pw-record`)
@@ -57,6 +65,13 @@ hyprctl reload
 ## Autostart With systemd User Services (Recommended)
 
 If your ASR backend is remote, use a local SSH tunnel plus local daemon.
+The service file must use absolute paths.
+
+Find your absolute project path:
+
+```bash
+realpath .
+```
 
 1. Create `~/.config/systemd/user/omaboard-voice-tunnel.service`:
 
@@ -86,12 +101,12 @@ Wants=network-online.target omaboard-voice-tunnel.service
 
 [Service]
 Type=simple
-WorkingDirectory=/path/to/omaboard
+WorkingDirectory=/absolute/path/to/omaboard
 Environment=VOICE_ENDPOINT=http://127.0.0.1:18000/v1/chat/completions
 Environment=VOICE_MODEL=qwen3-asr
 Environment=VOICE_LANGUAGE=zh
 Environment="VOICE_RECORD_ARGS=--rate 16000 --channels 1 --target <your-mic-source-name>"
-ExecStart=/usr/bin/env node /path/to/omaboard/dist/daemon.js
+ExecStart=/usr/bin/env node /absolute/path/to/omaboard/dist/daemon.js
 Restart=always
 RestartSec=2
 
@@ -118,6 +133,19 @@ Notes:
 
 - `enabled` user services auto-start after you log in.
 - For startup without login session, run `sudo loginctl enable-linger $USER`.
+
+## Troubleshooting
+
+- `voicectl` command not found:
+  - Run `npm link`, then verify with `which voicectl`.
+- Daemon cannot connect to backend:
+  - Check `VOICE_ENDPOINT` and test with `curl`.
+  - Check logs with `journalctl --user -u omaboard-voice.service -f`.
+- No transcript copied to clipboard:
+  - Confirm `wl-copy` exists: `which wl-copy`.
+- Microphone not recording:
+  - Confirm PipeWire tools exist: `which pw-record`.
+  - If needed, set `VOICE_RECORD_ARGS` with your device target.
 
 ## Environment Variables
 
@@ -158,6 +186,10 @@ node examples/mock-backend.mjs
 ```
 
 This server accepts OpenAI `/v1/chat/completions` payload and always returns mock text.
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 
