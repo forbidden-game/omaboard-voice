@@ -132,7 +132,7 @@ describe("transcribeFile retry behavior", () => {
     const config = createTestConfig();
 
     globalThis.fetch = (async () =>
-      createCompletionResponse("这个结果真不错！Please ship it!")) as MockFetch;
+      createCompletionResponse("这个结果真不错！！Please ship it!!!")) as MockFetch;
 
     try {
       const text = await transcribeFile(filePath, config);

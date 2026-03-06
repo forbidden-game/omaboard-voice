@@ -274,8 +274,7 @@ function sanitizeTranscriptText(text: string): string {
     .replace(/[，,、;；:：]\s*[，,、;；:：]+/g, "，")
     .replace(/^[，,。.!?！？、;；:：\s]+/g, "")
     .replace(/[，,、;；:：\s]+$/g, "")
-    .replace(/!/g, ".")
-    .replace(/！/g, "。")
+    .replace(/(?:！|!)+/g, (match) => (match.includes("！") ? "。" : "."))
     .replace(/\s{2,}/g, " ")
     .trim();
 }
