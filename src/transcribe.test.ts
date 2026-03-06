@@ -126,6 +126,21 @@ describe("transcribeFile retry behavior", () => {
       await rm(dirPath, { recursive: true, force: true });
     }
   });
+
+  it("replaces exclamation marks with periods", async () => {
+    const { dirPath, filePath } = await createTempAudioFile();
+    const config = createTestConfig();
+
+    globalThis.fetch = (async () =>
+      createCompletionResponse("这个结果真不错！Please ship it!")) as MockFetch;
+
+    try {
+      const text = await transcribeFile(filePath, config);
+      assert.equal(text, "这个结果真不错。Please ship it.");
+    } finally {
+      await rm(dirPath, { recursive: true, force: true });
+    }
+  });
 });
 
 function createTestConfig() {

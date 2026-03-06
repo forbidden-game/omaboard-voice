@@ -259,7 +259,7 @@ function normalizeTranscriptText(text: string): string | null {
     return null;
   }
 
-  const sanitized = sanitizeFillerWords(normalized);
+  const sanitized = sanitizeTranscriptText(normalized);
   if (sanitized.length === 0) {
     return null;
   }
@@ -267,13 +267,15 @@ function normalizeTranscriptText(text: string): string | null {
   return sanitized;
 }
 
-function sanitizeFillerWords(text: string): string {
+function sanitizeTranscriptText(text: string): string {
   return text
     .replace(/呃+/g, "")
     .replace(STANDALONE_E_PATTERN, "$1")
     .replace(/[，,、;；:：]\s*[，,、;；:：]+/g, "，")
     .replace(/^[，,。.!?！？、;；:：\s]+/g, "")
     .replace(/[，,、;；:：\s]+$/g, "")
+    .replace(/!/g, ".")
+    .replace(/！/g, "。")
     .replace(/\s{2,}/g, " ")
     .trim();
 }
